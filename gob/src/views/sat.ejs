@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+  <title>Datos Contribuyente</title>
+  <link rel="icon" type="image/x-icon" href="media/sat.ico">
+  <link rel="stylesheet" href="css/sat.css">
+
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+  <!-- MDB -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css" rel="stylesheet" />
+  <!-- JQUERY -->
+  <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+    crossorigin="anonymous"></script>
+  <!-- MDB -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.js"></script>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg bg-light navbar-light px-5 shadow">
+    <!-- Container wrapper -->
+    <div class="container-fluid">
+
+      <!-- Navbar brand -->
+      <a class="navbar-brand" href="/"><img src="media/satLogo.png" alt="Logos"></a>
+
+      <!-- Toggle button -->
+      <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <!-- Collapsible wrapper -->
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+          <!-- Link -->
+          <li class="nav-item">
+            <a class="nav-link" href="https://www.sat.gob.mx/home" target="_blank">Inicio</a>
+          </li>
+
+        </ul>
+
+        <!-- Icons -->
+        <ul class="navbar-nav d-flex flex-row me-1">
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="https://www.facebook.com/satmexico" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="https://www.instagram.com/satmx/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="https://twitter.com/satmx" target="_blank"><i class="fa-brands fa-twitter"></i></i></a>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+    <!-- Container wrapper -->
+  </nav>
+  <!-- Navbar -->
+
+  <div class="container-fluid d-flex justify-content-center align-items-center maincnt p-0">
+
+    <div class="w-25 m-3 profile d-flex justify-content-center align-items-center">
+
+      <div class="profile-container">
+        <div class="img-container ident">
+          <img id="pIMG" src="" alt="profile image">
+        </div>
+        <p class="info full-name text-center" id="objName">Nombre Apellido</p>
+        <p class="info role text-center ident" id="objEmail">Email@example.com</p>
+
+        <button class="action ident" id="loadFiles">Load Files</button>
+      </div>
+
+    </div>
+
+    <div class="w-50 m-3 files d-flex justify-content-center align-items-center p-5 shadow">
+
+      <table class="table table-hover border-secondary m-2">
+
+        <thead>
+          <tr class="head-table">
+            <th scope="col">File Name</th>
+            <th scope="col">Link</th>
+          </tr>
+        </thead>
+        <tbody id="listElements">
+
+
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <!-- UPDATING CREDENTIALS -->
+  <script>
+    document.getElementById("loadFiles").addEventListener("click", loadFiles);
+    const listOfDocuments = document.getElementById("listElements");
+
+    var ban = false;
+    updateData();
+
+    function updateData() {
+      if (!ban) {
+        $.ajax({
+          method: "GET",
+          url: "/update",
+          dataType: "json",
+        })
+          .done(function (data) {
+            if (data !== undefined) {
+              const collection = document.getElementsByClassName("ident");
+              for (let i = 0; i < collection.length; i++) {
+                collection[i].classList.remove("ident");
+              }
+              document.getElementById("objName").innerHTML = data.name;
+              document.getElementById("objEmail").innerHTML = data.email;
+
+              document.getElementById("pIMG").src = data.photoUrl;
+              ban = true;
+
+              refreshTimer();
+            } else {
+              updateData();
+            }
+          })
+          .fail(function () {
+            document.getElementById("objName").innerHTML = "turn on the share data and get the devise closer to the reader";
+            document.getElementById("objEmail").innerHTML = "";
+            updateData();
+          });
+      }
+    }
+
+    function refreshTimer() {
+      setTimeout("location.reload(true);", 90000);
+    }
+
+    function loadFiles() {
+      $.ajax({
+        method: "GET",
+        url: "/documents",
+        dataType: "json",
+      })
+        .done(function (data) {
+          if (data !== undefined) {
+            let allFiles = '';
+            data.forEach((dat) => {
+              allFiles += '<tr><td scope="row" class="w-75">' + dat.name + '</td><td class="w-25"><a class="downloadBtn" href="' + dat.uri + '" download target="_blank">download</a></td></tr>';
+            });
+            listOfDocuments.innerHTML = allFiles;
+          }
+        })
+        .fail(function () {
+
+        });
+    }
+  </script>
+  
+</body>
+
+</html>
