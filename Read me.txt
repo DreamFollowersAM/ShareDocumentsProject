@@ -1,0 +1,1 @@
+This project includes the reading RFID tags to connect with the database, this project use the mobile app to upload the files, unlock the status, and the web part to read the tag, see the files, and download them
